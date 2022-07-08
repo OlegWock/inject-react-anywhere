@@ -1,4 +1,4 @@
-# react-local-toast
+# inject-react-anywhere
 
 [![npm version][npmv-image]][npmv-url]
 [![npm downloads][npmd-image]][npmd-url]
@@ -35,7 +35,7 @@ To isolate your component from parent site you can use iframe. You embed compone
 
 ## Tutorial
 
-Yet to be writted
+Yet to be written
 
 ## API reference
 
