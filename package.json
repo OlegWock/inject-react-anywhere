@@ -1,0 +1,9 @@
+{
+  "name": "inject-react-anywhere",
+  "version": "0.1.0",
+  "description": "Inject react components into DOM of 3rd party sites. Particularly useful in browser extensions",
+  "main": "index.js",
+  "repository": "https://github.com/OlegWock/inject-react-anywhere",
+  "author": "OlegWock",
+  "license": "MIT"
+}
