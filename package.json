@@ -1,22 +1,25 @@
 {
   "name": "inject-react-anywhere",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Inject react components into DOM of 3rd party sites. Particularly useful in browser extensions",
   "main": "dist/esm/index.js",
   "type": "module",
   "exports": {
     ".": {
       "require": "./dist/cjs/index.js",
-      "import": "./dist/esm/index.js"
+      "import": "./dist/esm/index.js",
+      "types": "./dist/types/index.d.ts"
     },
     "./emotion": {
       "require": "./dist/cjs/emotion.js",
-      "import": "./dist/esm/emotion.js"
+      "import": "./dist/esm/emotion.js",
+      "types": "./dist/types/emotion.d.ts"
     }
     ,
     "./styled-components": {
       "require": "./dist/cjs/styled-components.js",
-      "import": "./dist/esm/styled-components.js"
+      "import": "./dist/esm/styled-components.js",
+      "types": "./dist/types/styled-components.d.ts"
     }
   },
   "types": "./dist/types",

@@ -32,6 +32,7 @@ const importOrNull = async (path: string): Promise<any> => {
     }
 };
 
+// TODO: check which version of react we have and import related func
 const mountUsingProperReactApi = async <P,>(
     Component: ComponentType<P>,
     props: P,
