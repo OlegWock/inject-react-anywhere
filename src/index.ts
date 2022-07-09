@@ -1,4 +1,3 @@
-export const injectComponent = (comp: string) => {
-    console.log(comp);
-    console.log('Hello there!');
-}
+export { createInjectableComponent } from './wrapper.js';
+export { injectComponent } from './inject.js';
+export { useShadowDom } from './hooks.js';
