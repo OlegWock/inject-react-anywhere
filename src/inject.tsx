@@ -10,20 +10,18 @@ interface InjectOptions {
     includeCssReset?: boolean;
 }
 
-interface InjectionResult<T, P> {
+interface InjectionResult<P> {
     id: string;
     shadowHost: HTMLDivElement;
     shadowRoot: ShadowRoot;
     mountedInto: HTMLDivElement;
     updateProps: (newProps: Partial<P>) => Promise<void>;
-    ref: React.Ref<T>;
     unmount: () => Promise<void>;
 }
 
-interface RenderResult<T, P> {
-    updateProps: InjectionResult<T, P>['updateProps'];
-    ref: InjectionResult<T, P>['ref'];
-    unmount: InjectionResult<T, P>['unmount'];
+interface RenderResult<P> {
+    updateProps: InjectionResult<P>['updateProps'];
+    unmount: InjectionResult<P>['unmount'];
 }
 
 const importOrNull = async (path: string): Promise<any> => {
@@ -34,33 +32,30 @@ const importOrNull = async (path: string): Promise<any> => {
     }
 };
 
-const mountUsingProperReactApi = async <T, P>(
-    Component: ComponentType<T, P>,
+const mountUsingProperReactApi = async <P,>(
+    Component: ComponentType<P>,
     props: P,
     mountInto: HTMLDivElement
-): Promise<RenderResult<T, P>> => {
+): Promise<RenderResult<P>> => {
     let propsSaved = { ...props };
-    const ref = React.createRef<T>();
     if (ReactDOMClient && ReactDOMClient.createRoot) {
         const root = ReactDOMClient.createRoot(mountInto);
-        root.render(<Component {...propsSaved} ref={ref} />);
+        root.render(<Component {...propsSaved} />);
         return {
             updateProps: async (newProps) => {
                 propsSaved = { ...propsSaved, ...newProps };
                 root.render(<Component {...propsSaved} />);
             },
-            ref: ref,
             unmount: async () => root.unmount(),
         };
     } else {
         return new Promise((resolve) => {
-            ReactDOM.render(<Component {...propsSaved} ref={ref} />, mountInto, () => {
-                const result: RenderResult<T, P> = {
-                    ref: ref,
+            ReactDOM.render(<Component {...propsSaved} />, mountInto, () => {
+                const result: RenderResult<P> = {
                     updateProps: (newProps) => {
                         return new Promise((resolve) => {
                             propsSaved = { ...propsSaved, ...newProps };
-                            ReactDOM.render(<Component {...propsSaved} ref={ref} />, mountInto, () => {
+                            ReactDOM.render(<Component {...propsSaved} />, mountInto, () => {
                                 resolve();
                             });
                         });
@@ -78,11 +73,11 @@ const mountUsingProperReactApi = async <T, P>(
     }
 };
 
-export const injectComponent = async <T, P>(
-    injectable: InjectableComponent<T, P>,
+export const injectComponent = async <P,>(
+    injectable: InjectableComponent<P>,
     props: P,
     options: InjectOptions = {}
-): Promise<InjectionResult<T, P>> => {
+): Promise<InjectionResult<P>> => {
     const {includeCssReset = true} = options;
     const id = uuidv4();
     const shadowHost = document.createElement('div');
@@ -99,7 +94,7 @@ export const injectComponent = async <T, P>(
     }
 
     const ComponentWithStyles = injectable.stylesInjector(injectable.component, shadowHost, shadowRoot, mountedInto);
-    const Component = React.forwardRef<T, P>((props: P, ref: React.Ref<T>) => {
+    const Component = (props: P) => {
         return (
             <Context.Provider
                 value={{
@@ -112,12 +107,12 @@ export const injectComponent = async <T, P>(
                     },
                 }}
             >
-                <ComponentWithStyles {...props} ref={ref} />
+                <ComponentWithStyles {...props}/>
             </Context.Provider>
         );
-    }) as unknown as ComponentType<T, P>;
+    } ;
 
-    const renderResults = await mountUsingProperReactApi<T, P>(Component, props, mountedInto);
+    const renderResults = await mountUsingProperReactApi(Component, props, mountedInto);
     return {
         id,
         shadowHost,

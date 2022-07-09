@@ -8,11 +8,8 @@ interface EmotionInjectorOptions {
 }
 
 export default (options: EmotionInjectorOptions = {}): StylesInjector => {
-    // React can't correctly match our ComponentType<T, P> and result of forwardRef an throws error
-    // Even if components are same type
-    // @ts-ignore
-    return <T, P>(
-        Component: ComponentType<T, P>,
+    return <P,>(
+        Component: ComponentType<P>,
         shadowHost: HTMLDivElement,
         shadowRoot: ShadowRoot,
         mountingInto: HTMLDivElement
@@ -28,12 +25,12 @@ export default (options: EmotionInjectorOptions = {}): StylesInjector => {
             stylisPlugins: stylisPlugins,
             container: shadowRoot,
         });
-        return React.forwardRef((props: P, ref: React.Ref<T>) => {
+        return (props: P) => {
             return (
                 <CacheProvider value={cache}>
-                    <Component {...props} ref={ref} />
+                    <Component {...props} />
                 </CacheProvider>
             );
-        });
+        };
     };
 };

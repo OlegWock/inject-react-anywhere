@@ -8,15 +8,15 @@ interface CreateInjectableComponentOptions {
     name?: string;
 }
 
-export interface InjectableComponent<T, P> {
+export interface InjectableComponent<P> {
     name: string;
-    component: ComponentType<T, P>;
+    component: ComponentType<P>;
     stylesInjector: StylesInjector;
 }
 
 const createNoopStylesInjector = (): StylesInjector => {
     return <T, P>(
-        Component: ComponentType<T, P>,
+        Component: ComponentType<P>,
         shadowHost: HTMLDivElement,
         shadowRoot: ShadowRoot,
         mountingInto: HTMLDivElement
@@ -26,8 +26,8 @@ const createNoopStylesInjector = (): StylesInjector => {
 };
 
 const createStringStylesInjector = (styles: string[]): StylesInjector => {
-    return <T, P>(
-        Component: ComponentType<T, P>,
+    return <P,>(
+        Component: ComponentType<P>,
         shadowHost: HTMLDivElement,
         shadowRoot: ShadowRoot,
         mountingInto: HTMLDivElement
@@ -40,10 +40,10 @@ const createStringStylesInjector = (styles: string[]): StylesInjector => {
     };
 };
 
-export const createInjectableComponent = <T, P>(
-    component: ComponentType<T, P>,
+export const createInjectableComponent = <P,>(
+    component: ComponentType<P>,
     options: CreateInjectableComponentOptions
-): InjectableComponent<T, P> => {
+): InjectableComponent<P> => {
     let stylesInjector: StylesInjector;
     if (options.styles === null || (Array.isArray(options.styles) && options.styles.length === 0)) {
         stylesInjector = createNoopStylesInjector();
