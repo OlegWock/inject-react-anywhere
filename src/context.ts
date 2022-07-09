@@ -1,10 +1,14 @@
 import React from 'react';
 
-interface ContextTypeDefault {
+export interface ContextTypeDefault {
     insideShadowDom: false;
+    shadowHost: null;
+    shadowRoot: null;
+    mountedInto: null;
+    unmountRoot: null;
 }
 
-interface ContextTypeExtended {
+export interface ContextTypeExtended {
     insideShadowDom: true;
     shadowHost: HTMLDivElement;
     shadowRoot: ShadowRoot;
@@ -12,8 +16,12 @@ interface ContextTypeExtended {
     unmountRoot: () => void;
 }
 
-type ContextType = ContextTypeDefault | ContextTypeExtended;
+export type ContextType = ContextTypeDefault | ContextTypeExtended;
 
 export const Context = React.createContext<ContextType>({
     insideShadowDom: false,
+    shadowHost: null,
+    shadowRoot: null,
+    mountedInto: null,
+    unmountRoot: null,
 });

@@ -9,11 +9,17 @@
       "require": "./dist/cjs/index.js",
       "import": "./dist/esm/index.js"
     },
-    "./*": {
-      "require": "./dist/cjs/*.js",
-      "import": "./dist/esm/*.js"
+    "./emotion": {
+      "require": "./dist/cjs/emotion.js",
+      "import": "./dist/esm/emotion.js"
+    }
+    ,
+    "./styled-components": {
+      "require": "./dist/cjs/styled-components.js",
+      "import": "./dist/esm/styled-components.js"
     }
   },
+  "types": "./dist/types",
   "repository": "https://github.com/OlegWock/inject-react-anywhere",
   "author": "OlegWock",
   "license": "MIT",

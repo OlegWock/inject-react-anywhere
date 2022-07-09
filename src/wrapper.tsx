@@ -35,7 +35,7 @@ const createStringStylesInjector = (styles: string[]): StylesInjector => {
         const combined = styles.join('\n');
         const styleTag = document.createElement('style');
         styleTag.append(document.createTextNode(combined));
-        mountingInto.append(styleTag);
+        shadowRoot.append(styleTag);
         return Component;
     };
 };

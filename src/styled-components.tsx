@@ -25,7 +25,8 @@ export default (options: StyledComponentsInjectorOptions = {}): StylesInjector =
                     disableCSSOMInjection={disableCSSOMInjection}
                     disableVendorPrefixes={disableVendorPrefixes}
                     stylisPlugins={stylisPlugins}
-                    target={mountingInto}
+                    // @ts-ignore
+                    target={shadowRoot}
                 >
                     <Component {...props} ref={ref} />
                 </StyleSheetManager>

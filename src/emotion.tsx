@@ -26,7 +26,7 @@ export default (options: EmotionInjectorOptions = {}): StylesInjector => {
                 .replace(/[^a-z]+/g, '')
                 .slice(0, 5),
             stylisPlugins: stylisPlugins,
-            container: mountingInto,
+            container: shadowRoot,
         });
         return React.forwardRef((props: P, ref: React.Ref<T>) => {
             return (
