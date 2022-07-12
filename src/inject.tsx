@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ReactDOMClient from 'react-dom/client';
 import { InjectableComponent } from './wrapper.js';
 import { v4 as uuidv4 } from 'uuid';
 import { Context } from './context.js';
 import { ComponentType } from './types.js';
 
-interface InjectOptions {
+interface InjectOptions<P> {
     includeCssReset?: boolean;
+    mountStrategy?: (Component: ComponentType<P>, props: P, mountInto: HTMLDivElement) => Promise<RenderResult<P>>
 }
 
 interface InjectionResult<P> {
@@ -19,67 +19,46 @@ interface InjectionResult<P> {
     unmount: () => Promise<void>;
 }
 
-interface RenderResult<P> {
+export interface RenderResult<P> {
     updateProps: InjectionResult<P>['updateProps'];
     unmount: InjectionResult<P>['unmount'];
 }
 
-const importOrNull = async (path: string): Promise<any> => {
-    try {
-        return await import(path);
-    } catch (e) {
-        return null;
-    }
-};
-
-// TODO: check which version of react we have and import related func
-const mountUsingProperReactApi = async <P,>(
+const mountUsingReactDomRender = async <P,>(
     Component: ComponentType<P>,
     props: P,
     mountInto: HTMLDivElement
 ): Promise<RenderResult<P>> => {
     let propsSaved = { ...props };
-    if (ReactDOMClient && ReactDOMClient.createRoot) {
-        const root = ReactDOMClient.createRoot(mountInto);
-        root.render(<Component {...propsSaved} />);
-        return {
-            updateProps: async (newProps) => {
-                propsSaved = { ...propsSaved, ...newProps };
-                root.render(<Component {...propsSaved} />);
-            },
-            unmount: async () => root.unmount(),
-        };
-    } else {
-        return new Promise((resolve) => {
-            ReactDOM.render(<Component {...propsSaved} />, mountInto, () => {
-                const result: RenderResult<P> = {
-                    updateProps: (newProps) => {
-                        return new Promise((resolve) => {
-                            propsSaved = { ...propsSaved, ...newProps };
-                            ReactDOM.render(<Component {...propsSaved} />, mountInto, () => {
-                                resolve();
-                            });
-                        });
-                    },
-                    unmount: () => {
-                        return new Promise((resolve) => {
-                            ReactDOM.unmountComponentAtNode(mountInto);
+    return new Promise((resolve) => {
+        ReactDOM.render(<Component {...propsSaved} />, mountInto, () => {
+            const result: RenderResult<P> = {
+                updateProps: (newProps) => {
+                    return new Promise((resolve) => {
+                        propsSaved = { ...propsSaved, ...newProps };
+                        ReactDOM.render(<Component {...propsSaved} />, mountInto, () => {
                             resolve();
                         });
-                    },
-                };
-                resolve(result);
-            });
+                    });
+                },
+                unmount: () => {
+                    return new Promise((resolve) => {
+                        ReactDOM.unmountComponentAtNode(mountInto);
+                        resolve();
+                    });
+                },
+            };
+            resolve(result);
         });
-    }
+    });
 };
 
 export const injectComponent = async <P,>(
     injectable: InjectableComponent<P>,
     props: P,
-    options: InjectOptions = {}
+    options: InjectOptions<P> = {}
 ): Promise<InjectionResult<P>> => {
-    const {includeCssReset = true} = options;
+    const {includeCssReset = true, mountStrategy = mountUsingReactDomRender} = options;
     const id = uuidv4();
     const shadowHost = document.createElement('div');
     shadowHost.id = id;
@@ -113,7 +92,7 @@ export const injectComponent = async <P,>(
         );
     } ;
 
-    const renderResults = await mountUsingProperReactApi(Component, props, mountedInto);
+    const renderResults = await mountStrategy(Component, props, mountedInto);
     return {
         id,
         shadowHost,

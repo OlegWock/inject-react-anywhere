@@ -1,28 +1,43 @@
 {
   "name": "inject-react-anywhere",
-  "version": "0.1.1",
+  "version": "0.1.15",
   "description": "Inject react components into DOM of 3rd party sites. Particularly useful in browser extensions",
-  "main": "dist/esm/index.js",
   "type": "module",
+  "module": "dist/esm/index.js",
+  "main": "dist/cjs/index.js",
+  "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts",
       "import": "./dist/esm/index.js",
-      "types": "./dist/types/index.d.ts"
+      "require": "./dist/cjs/index.js"
+    },
+    "./styled-components": {
+      "types": "./dist/types/styled-components.d.ts",
+      "import": "./dist/esm/styled-components.js",
+      "require": "./dist/cjs/styled-components.js"
     },
     "./emotion": {
-      "require": "./dist/cjs/emotion.js",
+      "types": "./dist/types/emotion.d.ts",
       "import": "./dist/esm/emotion.js",
-      "types": "./dist/types/emotion.d.ts"
-    }
-    ,
-    "./styled-components": {
-      "require": "./dist/cjs/styled-components.js",
-      "import": "./dist/esm/styled-components.js",
-      "types": "./dist/types/styled-components.d.ts"
+      "require": "./dist/cjs/emotion.js"
+    },
+    "./v18": {
+      "types": "./dist/types/v18.d.ts",
+      "import": "./dist/esm/v18.js",
+      "require": "./dist/cjs/v18.js"
     }
   },
-  "types": "./dist/types",
+  "typesVersions": {
+    "*": {
+      "emotion": ["dist/types/emotion.d.ts"],
+      "styled-components": ["dist/types/styled-components.d.ts"],
+      "v18": ["dist/types/v18.d.ts"]
+    }
+  },
+  "directories": {
+    "dist": "dist"
+  },
   "repository": "https://github.com/OlegWock/inject-react-anywhere",
   "author": "OlegWock",
   "license": "MIT",

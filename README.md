@@ -35,11 +35,15 @@ To isolate your component from parent site you can use iframe. You embed compone
 
 ## Tutorial
 
-Yet to be written
+TODO: Yet to be written
+
+## Examples
+
+TODO: finish example extension
 
 ## API reference
 
-Yet to be defined
+TODO: Yet to be defined
 
 ## License
 
