@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Context } from "./context";
+import { Context } from "./context.js";
 
 // Reference https://react-typescript-cheatsheet.netlify.app/docs/hoc/intro/
 

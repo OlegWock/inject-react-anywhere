@@ -69,7 +69,7 @@ export const injectComponent = async <P,>(
 
     if (includeCssReset) {
         const styleTag = document.createElement('style');
-        styleTag.innerHTML = '*, *::before, *::after {all: initial;}';
+        styleTag.innerHTML = '.inject-react-anywhere-mounted-into, .inject-react-anywhere-mounted-into::before, .inject-react-anywhere-mounted-into::after {all: initial;}';
         shadowRoot.appendChild(styleTag);
     }
 
