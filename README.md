@@ -23,9 +23,7 @@ If you have bugs to report — create an [issue](https://github.com/OlegWock/inj
 
 I mainly develop browser extensions. And I find React very useful when it comes to building UI more complex than three inputs and two buttons. And sometimes (a lot of times actually) you need to inject that component into 3rd party site, which you don't control. I spent enough time debugging cases when styles from parent were affecting my widget. 
 
-«Okay, we can use Shadow DOM» I thought. Of course we can! Will it solve all problems? Not really. Shadow DOM helps, but it comes with it's own bundle of issues (even not counting 'looking like an already dead web technology' here). And do you know which one of them is funniest? Parent styles still affect my widgets! Not that badly as before: parent can't directly style components in shadow DOM, but styles from parent elements of shadow DOM container sometimes still bleed into inner element.
-
-So at this point you need to manually reset all styles in Shadow DOM and inject your own styles somehow. Turns out most of existing neat tooling (like beloved webpack's `style-loader`) doesn't work with shadow DOM (at least it didn't when I first faced this problem, now it's a bit better, but still far from ideal). So you left with your CSS one on one. You can always import styles as raw string and insert into DOM manually. But it quickly becomes tedious and you start writing your own lib/wrapper to do that. Welcome to the club, buddy. 
+Shadow DOM helps a lot, but you still need to fine tune it for your needs. Inject css reset here, write function to hide all implementation details there and so on. This quickly grows to the size of small library. Why reinvent the wheel?
 
 Now you can save yourself a couple of hours (or even days) and just use this library.
 
