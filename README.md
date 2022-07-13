@@ -8,34 +8,40 @@
 
 ## Features
 
-* Setups Shadow DOM wrapper for react components for you
-* Handles injection of styles for you. Yes, CSS-in-JS too (currently supported `styled-components` and `emotion`)
-* Exposes nice API to access additional info about how/where component is mounted
-* First-class TypeScript
+* Setups Shadow DOM wrapper for react components for you.
+* Handles injection of styles for you. Yes, CSS-in-JS too (currently supported `styled-components` and `emotion`).
+* Exposes nice API to access additional info about how/where component is mounted.
+* First-class TypeScript.
+
+## Gathering feedback
+
+I invite you to share your thoughts about this library. If you have some ideas or feature requests, please head to [discussion](https://github.com/OlegWock/inject-react-anywhere/discussions/1). It's right place to ask for new style injectors for example.
+
+If you have bugs to report — create an [issue](https://github.com/OlegWock/inject-react-anywhere/issues). And if you ready to code some features yourself — feel free to make pull request (but please create issue with description of intended changes so we can discuss optimal way to implement it).
 
 ## Motivation
 
-I mainly develop browser extension. And I find React very useful when it comes to building UI more complex than three inputs and two buttons. And sometimes (a lot of times actually) you need to inject that component into 3rd party site, which you don't control. I spent so much time debugging cases when styles from parent were affecting my widget. 
+I mainly develop browser extensions. And I find React very useful when it comes to building UI more complex than three inputs and two buttons. And sometimes (a lot of times actually) you need to inject that component into 3rd party site, which you don't control. I spent enough time debugging cases when styles from parent were affecting my widget. 
 
-Okay, we can use Shadow DOM I thought. Of course we can! Will it solve all problems? Not really. Shadow DOM helps, but it comes with it's own bundle of issues (even not counting 'looking like an already dead web technology' here). And do you know which one of them are funniest? Parent styles still affect my widgets! Not that badly as before: parent can't directly style components in shadow DOM, but styles from parent elements of shadow DOM container sometimes still bleeds into inner element.
+«Okay, we can use Shadow DOM» I thought. Of course we can! Will it solve all problems? Not really. Shadow DOM helps, but it comes with it's own bundle of issues (even not counting 'looking like an already dead web technology' here). And do you know which one of them is funniest? Parent styles still affect my widgets! Not that badly as before: parent can't directly style components in shadow DOM, but styles from parent elements of shadow DOM container sometimes still bleed into inner element.
 
 So at this point you need to manually reset all styles in Shadow DOM and inject your own styles somehow. Turns out most of existing neat tooling (like beloved webpack's `style-loader`) doesn't work with shadow DOM (at least it didn't when I first faced this problem, now it's a bit better, but still far from ideal). So you left with your CSS one on one. You can always import styles as raw string and insert into DOM manually. But it quickly becomes tedious and you start writing your own lib/wrapper to do that. Welcome to the club, buddy. 
 
-Now you can save yourself a couple of hours (or more likely days) and just use this library.
+Now you can save yourself a couple of hours (or even days) and just use this library.
 
 ### Why not iframe?
 
-To isolate your component from parent site you can use iframe. You embed component in iframe and then embed iframe on page. Styles are isolated out of the box. But it has its own downsides too:
+To isolate your component from parent site you can use iframe. You embed component in the iframe and then embed iframe on page. Styles are isolated out of the box. But it has its own downsides too:
 
 1. Iframe is isolated from parent. It's his strengths and it's his weakness too. Wanted to access URL of parent page? Too bad! You need to proxy that through another script.
 
 2. Iframes might not be allowed on page (hello `frame-src` CSP directive).
 
-3. Iframe requires you to build rectangular components. Wanted to build small button which shows dropdown on click? Oops, try shadow DOM next time.
+3. Iframe requires you to build rectangular components. Wanted to build small button which shows dropdown on click? Oops, try Shadow DOM next time.
 
 ## Install
 
-```
+```bash
 yarn add inject-react-anywhere
 
 # Or if you're npm enjoyer
@@ -44,7 +50,7 @@ npm install inject-react-anywhere
 
 ## Tutorial
 
-First of all, we need a components which we'll inject. Both function and class components will do. For styling, currently supported (out of the box) solutions are supplying css rules as string and `styled-components` and `emotion`. If this doesn't cover your need, please head to API reference and I'll show how you can write your own adapter. For now, let's assume we have this component written with styled-components:
+First of all, we need a components which we'll inject. Both function and class components will do. For styling, currently supported (out of the box) solutions are supplying your css as array of string, `styled-components` and `emotion`. If this doesn't cover your need, please head to API reference and I'll show how you can write your own adapter. For now, let's assume we have this component written with styled-components:
 
 ```jsx
 import React from 'react';
@@ -75,7 +81,7 @@ const Greeter = ({name}) => {
 };
 ```
 
-Pretty minimal component. Now we need to make it injectable. To do so, we need to wrap our component with `createInjectableComponent` function. It accepts component you're going to inject and styles it depends on.
+Pretty minimal component. Now we need to make it injectable. To do so, we need to wrap our component with `createInjectableComponent` function. It accepts component you're going to inject and styles component depends on.
 
 ```js
 // Add these imports to start of file
@@ -89,7 +95,13 @@ export const InjectableGreeter = createInjectableComponent(Greeter, {
 
 As you can see, `styledComponents` functions is imported from separate file. Same story with `emotion`, import it from `inject-react-anywhere/emotion`. And in case you want to use CSS strings just supply an array of strings to `styles` field. How do you load your external CSS files as raw strings depends on your tooling.
 
-Calling `createInjectableComponent` doesn't do much. It just packs your component with some metadata (styles). To render your component you need to actually call `injectComponent` function. If we're talking about browser extensions (and I tbh can't imagine other usecases for this library. If you do -- let me know please!!) this code will go to actual content script which is run on some 3rd party site. 
+```js
+export const InjectableGreeter = createInjectableComponent(Greeter, {
+    styles: ['.my-class { font-size: 22px; }', '<some CSS from 3rd party lib you use>']
+});
+```
+
+Calling `createInjectableComponent` doesn't do much. It just packs your component with some metadata (styles). To render your component you need to actually call `injectComponent` function. If we're talking about browser extensions (and I tbh can't imagine other usecases for this library. If you do – let me know please!!) this code will go to content script which is run on some 3rd party site. 
 
 ```js
 import React from 'react';
@@ -107,13 +119,13 @@ const main = async () => {
 main();
 ```
 
-You provide `injectComponent` with components and initial props and it will return an object with fields (among other) `shadowHost`, `updateProps` and `unmount` which can be used to embed component in DOM, update it and unmount. And that's it. You finished minimal tutorial.
+You provide `injectComponent` with component's wrapper (from previous step) and initial props and it will return an object with fields (among other) `shadowHost`, `updateProps` and `unmount` which can be used to embed component in DOM, update it and unmount. And that's it. You finished minimal tutorial.
 
 ## Examples or how do I...
 
 ### ...get info about shadow host in component itself?
 
-There are two ways to do this: hooks for functional components and HOC for class components. Hook can be used like this:
+There are two ways to do this: hooks for functional components and HOC for class components. Hook can be used like this (directly in mounted component or in any of its children):
 
 ```jsx
 import React from 'react';
@@ -122,8 +134,8 @@ import { useShadowDom } from "inject-react-anywhere";
 const Greeter = ({name}) => {
     const { insideShadowDom, unmountRoot, shadowRoot, shadowHost, mountedInto } = useShadowDom();
 
-    // Please keep in mind that your components might be rendered not in Shadow DOM, but in usual pages too.
-    // So don't forget to check that `insideShadowDom` is true
+    // Please keep in mind that your components might be rendered not in Shadow DOM, but in normal DOM nodes too.
+    // So don't forget to check that `insideShadowDom` is true before accessing other properties
 
     return (<StyledPopup>
         Hello, {name}! How are you?
@@ -133,7 +145,7 @@ const Greeter = ({name}) => {
 };
 ```
 
-And for class components you wrap them in `withShadowDom` HOC. This same functions and variables you get when calling `useShadowDom` hook will be passed as props to your component.
+And for class components you wrap them in `withShadowDom` HOC. This same functions and variables you get when calling `useShadowDom` hook will be passed as props to your component. This too can be used on both root component and any of its children.
 
 ```jsx
 import React from 'react';
@@ -177,7 +189,7 @@ class Greeter extends React.Component<GreeterProps, {}> {
 export default withShadowDom(Greeter);
 ```
 
-### ...update props of component 
+### ...update props
 
 When you call `injectComponent` it will return you object with field (among other) `updateProps`. You can call it with partial (or full) properties object and component will be re-rendered with new props.
 
@@ -203,7 +215,7 @@ main();
 
 ### ...properly unmount component
 
-You can alway just remove shadow host which will remove component from page. But changes are high you'll still have some timers (started by components) active or something like this. To properly unmount component use `unmount` function returned by `injectComponent`.
+You can alway just remove shadow host which will remove component from page. But chances are high you'll still have some timers (started by components) active or something like this. To properly unmount component use `unmount` function returned by `injectComponent`.
 
 ```jsx
 import React from 'react';
@@ -303,6 +315,33 @@ const main = async () => {
 main();
 ```
 
+### ...wrap my component in providers
+
+Just create wrapper component and pass it to `createInjectableComponent`.
+
+```js
+import React from 'react';
+import { createInjectableComponent } from "inject-react-anywhere";
+import styledComponents from 'inject-react-anywhere/styled-components';
+
+
+const Greeter = ({name}) => {
+    return (<StyledPopup>
+        Hello, {name}! How are you?
+    </StyledPopup>)
+};
+
+export const InjectableGreeter = createInjectableComponent((props) => {
+        return (
+            <SomeProvider providerProp="whatever">
+                <Greeter {...props}/>
+            </SomeProvider>
+        );
+    }, {
+    styles: styledComponents()
+});
+```
+
 ## API reference
 
 ### createInjectableComponent
@@ -319,7 +358,7 @@ This function accepts component to wrap and options. Options currently consist o
 type StylesInjector = <P>(Component: ComponentType<P>, shadowHost: HTMLDivElement, shadowRoot: ShadowRoot, mountingInto: HTMLDivElement) => ComponentType<P>;
 ```
 
-Implementing your own style injector you can add support for other styling solutions. For reference please check [`emotion.tsx`](src/emotion.tsx) or [`styled-components.tsx`](src/styled-components.tsx) which implement `StylesInjector`.
+By implementing your own style injector you can add support for other styling solutions. For reference please check [`emotion.tsx`](src/emotion.tsx) or [`styled-components.tsx`](src/styled-components.tsx), they both are implementations of `StylesInjector`.
 
 `createInjectableComponent` returns plain object with provided component and metadata. You most likely don't want to mofidy or use it directly, just pass them to `injectComponent` function.
 
@@ -331,7 +370,7 @@ SIgnature:
 const injectComponent = async <P>(injectable: InjectableComponent<P>, props: P, options: InjectOptions<P> = {}): Promise<InjectionResult<P>>
 ```
 
-This function accepts `injectable` which was returned from `createInjectableComponent` function, props and optional options (sorry!). Options consist of `includeCssReset` (boolean, `true` by default) which controls should library include CSS reset into shadow dom. In most cases you want to exclude any impact of parent site's styles on your component, but sometimes disabling this might be useful too. And the other option is `mountStrategy`. This is function which mounts component into DOM node and returns `updateProps` and `unmount` function. This mostly needed to support React v18 rendering. If ommited -- standart `ReactDOM.render` will be used. You probably don't need to provide your own function here.
+This function accepts `injectable` which was returned from `createInjectableComponent` function, props and optional options (sorry!). Options consist of `includeCssReset` (boolean, `true` by default) which controls should library include CSS reset into shadow dom. In most cases you want to get rid of any impact of parent site's styles on your component, but sometimes disabling this might be useful too. And the other option is `mountStrategy`. This is function which mounts component into DOM node and returns `updateProps` and `unmount` function. This mostly needed to support React v18 rendering. If ommited -- standart `ReactDOM.render` will be used. You probably don't need to provide your own function here.
 
 ```ts
 import { injectComponent } from 'inject-react-anywhere';
@@ -413,6 +452,14 @@ class Greeter extends React.Component {
 
 export default withShadowDom(Greeter);
 ```
+
+### emotion
+
+This function accepts `options` object with single field `stylisPlugins` which will be passed to emotion. Refer to [emotion docs](https://emotion.sh/docs/@emotion/cache#stylisplugins) for more details.
+
+### styledComponents
+
+This function accepts `options` object with fields `disableCSSOMInjection`, `disableVendorPrefixes` and `stylisPlugins`. They will be passed to styled-components library without modification. Refer to [styled-components docs](https://styled-components.com/docs/api#stylesheetmanager) for more details.
 
 ## License
 
