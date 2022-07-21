@@ -25,7 +25,7 @@ const createNoopStylesInjector = (): StylesInjector => {
     };
 };
 
-const createStringStylesInjector = (styles: string[]): StylesInjector => {
+export const stringStyles = (styles: string[]): StylesInjector => {
     return <P,>(
         Component: ComponentType<P>,
         shadowHost: HTMLDivElement,
@@ -40,6 +40,21 @@ const createStringStylesInjector = (styles: string[]): StylesInjector => {
     };
 };
 
+export const combineStyleInjectors = (...injectors: StylesInjector[]): StylesInjector => {
+    return <P,>(
+        Component: ComponentType<P>,
+        shadowHost: HTMLDivElement,
+        shadowRoot: ShadowRoot,
+        mountingInto: HTMLDivElement
+    ) => {
+        let LocalComponent = Component;
+        injectors.forEach(injector => {
+            LocalComponent = injector(LocalComponent, shadowHost, shadowRoot, mountingInto);
+        });
+        return LocalComponent;
+    }
+};
+
 export const createInjectableComponent = <P,>(
     component: ComponentType<P>,
     options: CreateInjectableComponentOptions
@@ -48,7 +63,7 @@ export const createInjectableComponent = <P,>(
     if (options.styles === null || (Array.isArray(options.styles) && options.styles.length === 0)) {
         stylesInjector = createNoopStylesInjector();
     } else if (Array.isArray(options.styles) && options.styles.length !== 0 && typeof options.styles[0] === 'string') {
-        stylesInjector = createStringStylesInjector(options.styles);
+        stylesInjector = stringStyles(options.styles);
     } else if (typeof options.styles === 'function') {
         stylesInjector = options.styles;
     } else {

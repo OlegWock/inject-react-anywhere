@@ -99,6 +99,20 @@ export const InjectableGreeter = createInjectableComponent(Greeter, {
 });
 ```
 
+If you need to combine a few style injectors (e.g. one of components libraries you use depends on `emotion`, but you use css strings), you can use `combineStyleInjectors` function:
+
+```js
+import { createInjectableComponent, combineStyleInjectors, stringStyles } from "inject-react-anywhere";
+import styledComponents from 'inject-react-anywhere/styled-components';
+
+export const InjectableGreeter = createInjectableComponent(Greeter, {
+    styles: combineStyleInjectors(
+        stringStyles(['.my-class { font-size: 22px; }', '<some CSS from 3rd party lib you use>']),
+        styledComponents()
+    ),
+});
+```
+
 Calling `createInjectableComponent` doesn't do much. It just packs your component with some metadata (styles). To render your component you need to actually call `injectComponent` function. If we're talking about browser extensions (and I tbh can't imagine other usecases for this library. If you do – let me know please!!) this code will go to content script which is run on some 3rd party site. 
 
 ```js
