@@ -10,7 +10,7 @@ interface InjectOptions<P> {
     mountStrategy?: (Component: ComponentType<P>, props: P, mountInto: HTMLDivElement) => Promise<RenderResult<P>>
 }
 
-interface InjectionResult<P> {
+export interface InjectionResult<P> {
     id: string;
     shadowHost: HTMLDivElement;
     shadowRoot: ShadowRoot;
