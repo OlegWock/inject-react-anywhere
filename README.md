@@ -19,6 +19,10 @@ I invite you to share your thoughts about this library. If you have some ideas o
 
 If you have bugs to report — create an [issue](https://github.com/OlegWock/inject-react-anywhere/issues). And if you ready to code some features yourself — feel free to make pull request (but please create issue with description of intended changes so we can discuss optimal way to implement it).
 
+## Breaking changes in 2.x.x
+
+* Style injectors now should accept one extra parameter `stylesWrapper` (div element) and if possible inject styles into this node. Built-in style injectors were updated to support this. This change required to support mirroring of styles and portalling part of component into different shadow dom. While you should be able to upgrade without any changes, this is considered breaking change thus bump to 2.0.0.
+
 ## Motivation
 
 I mainly develop browser extensions. And I find React very useful when it comes to building UI more complex than three inputs and two buttons. And sometimes (a lot of times actually) you need to inject that component into 3rd party site, which you don't control. I spent enough time debugging cases when styles from parent were affecting my widget. 
@@ -354,6 +358,32 @@ export const InjectableGreeter = createInjectableComponent((props) => {
 });
 ```
 
+### ...use portals
+
+Just as you do normally. `ReactDOM.createPortal` goes brrrrrr. Additionally, you can use `createShadowPortal` function to create element for portalling into. This function just creates a node and attaches shadow DOM with two div nodes (one for portalling into it and second one for styles). However, it plays nicely with `mirrorStylesInto` returned by `injectComponent`. This function accepts DOM element and mirrors any changes to `stylesWrapper` element of original component to provided element. This way you can portals without issues with styles.
+
+```js
+import React from 'react';
+import { InjectableGreeter } from './InjectableGreeter';
+import { injectComponent, createShadowPortal } from 'inject-react-anywhere';
+
+const main = async () => {
+    const portalController = createShadowPortal();
+    const controller = await injectComponent(InjectableGreeter, {
+        name: 'Oleh',
+        portalInto: portalController.portalInto
+    });
+    controller.mirrorStylesInto(portalController.stylesWrapper);
+
+    document.body.append(portalController.shadowHost);
+    document.body.append(controller.shadowHost);
+};
+
+main();
+```
+
+This is particularly useful if you embed your widget in small component and need to work around stacking context to display part of your component to go over parent boundaries. Just create portal and append its `shadowHost` to end of body.
+
 ## API reference
 
 ### createInjectableComponent
@@ -364,10 +394,10 @@ Signature:
 const createInjectableComponent = <P>(component: ComponentType<P>, options: CreateInjectableComponentOptions): InjectableComponent<P>
 ```
 
-This function accepts component to wrap and options. Options currently consist of just two fields: `name` (will be populated automatically) and `styles`. Styles can be either `null` (no styles at all), array of css strings or `StylesInjector`. `StylesInjector` is a function which accepts component and parameters, injects styles and returns new component. 
+This function accepts component to wrap and options. Options currently consist of just two fields: `name` (will be populated automatically) and `styles`. Styles can be either `null` (no styles at all), array of css strings or `StylesInjector`. `StylesInjector` is a function which accepts component and parameters, injects styles (preferably into `stylesWrapper`) and returns new component. 
 
 ```ts
-type StylesInjector = <P>(Component: ComponentType<P>, shadowHost: HTMLDivElement, shadowRoot: ShadowRoot, mountingInto: HTMLDivElement) => ComponentType<P>;
+type StylesInjector = <P>(Component: ComponentType<P>, shadowHost: HTMLDivElement, shadowRoot: ShadowRoot, mountingInto: HTMLDivElement, stylesWrapper: HTMLDivElement) => ComponentType<P>;
 ```
 
 By implementing your own style injector you can add support for other styling solutions. For reference please check [`emotion.tsx`](src/emotion.tsx) or [`styled-components.tsx`](src/styled-components.tsx), they both are implementations of `StylesInjector`.

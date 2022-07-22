@@ -4,7 +4,8 @@ export type StylesInjector = <P>(
     Component: ComponentType<P>,
     shadowHost: HTMLDivElement,
     shadowRoot: ShadowRoot,
-    mountingInto: HTMLDivElement
+    mountingInto: HTMLDivElement,
+    stylesDiv: HTMLDivElement,
 ) => ComponentType<P>;
 
 

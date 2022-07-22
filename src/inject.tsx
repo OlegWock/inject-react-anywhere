@@ -4,6 +4,15 @@ import { InjectableComponent } from './wrapper.js';
 import { v4 as uuidv4 } from 'uuid';
 import { Context } from './context.js';
 import { ComponentType } from './types.js';
+import { createMirror } from './mirror-node.js';
+
+
+export interface ShadowPortal {
+    shadowHost: HTMLDivElement,
+    shadowRoot: ShadowRoot,
+    portalInto: HTMLDivElement,
+    stylesWrapper: HTMLDivElement,
+}
 
 interface InjectOptions<P> {
     includeCssReset?: boolean;
@@ -15,8 +24,10 @@ export interface InjectionResult<P> {
     shadowHost: HTMLDivElement;
     shadowRoot: ShadowRoot;
     mountedInto: HTMLDivElement;
+    stylesWrapper: HTMLDivElement;
     updateProps: (newProps: Partial<P>) => Promise<void>;
     unmount: () => Promise<void>;
+    mirrorStylesInto: (node: HTMLElement) => void;
 }
 
 export interface RenderResult<P> {
@@ -64,16 +75,18 @@ export const injectComponent = async <P,>(
     shadowHost.id = id;
     const shadowRoot = shadowHost.attachShadow({ mode: 'open' }); // Should this be an option?
     const mountedInto = document.createElement('div');
+    const stylesWrapper = document.createElement('div');
     mountedInto.classList.add('inject-react-anywhere-mounted-into');
     shadowRoot.appendChild(mountedInto);
+    shadowRoot.appendChild(stylesWrapper);
 
     if (includeCssReset) {
         const styleTag = document.createElement('style');
         styleTag.innerHTML = '.inject-react-anywhere-mounted-into, .inject-react-anywhere-mounted-into::before, .inject-react-anywhere-mounted-into::after {all: initial;}';
-        shadowRoot.appendChild(styleTag);
+        stylesWrapper.appendChild(styleTag);
     }
 
-    const ComponentWithStyles = injectable.stylesInjector(injectable.component, shadowHost, shadowRoot, mountedInto);
+    const ComponentWithStyles = injectable.stylesInjector(injectable.component, shadowHost, shadowRoot, mountedInto, stylesWrapper);
     const Component = (props: P) => {
         return (
             <Context.Provider
@@ -82,6 +95,7 @@ export const injectComponent = async <P,>(
                     shadowHost,
                     shadowRoot,
                     mountedInto,
+                    stylesWrapper,
                     unmountRoot: () => {
                         renderResults.unmount();
                     },
@@ -98,6 +112,29 @@ export const injectComponent = async <P,>(
         shadowHost,
         shadowRoot,
         mountedInto,
+        stylesWrapper,
+        mirrorStylesInto: (node: HTMLElement) => {
+            createMirror(stylesWrapper, node);
+        },
         ...renderResults,
     };
 };
+
+export const createShadowPortal = async (): Promise<ShadowPortal> => {
+    const id = uuidv4();
+    const shadowHost = document.createElement('div');
+    shadowHost.id = id;
+    const shadowRoot = shadowHost.attachShadow({ mode: 'open' }); // Should this be an option?
+    const mountedInto = document.createElement('div');
+    const stylesWrapper = document.createElement('div');
+    mountedInto.classList.add('inject-react-anywhere-portal-mounted-into');
+    shadowRoot.appendChild(mountedInto);
+    shadowRoot.appendChild(stylesWrapper);
+
+    return {
+        shadowHost,
+        shadowRoot,
+        portalInto: mountedInto,
+        stylesWrapper,
+    }
+}

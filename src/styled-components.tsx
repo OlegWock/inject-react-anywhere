@@ -13,7 +13,8 @@ export default (options: StyledComponentsInjectorOptions = {}): StylesInjector =
         Component: ComponentType<P>,
         shadowHost: HTMLDivElement,
         shadowRoot: ShadowRoot,
-        mountingInto: HTMLDivElement
+        mountingInto: HTMLDivElement,
+        stylesWrapper: HTMLDivElement,
     ) => {
         const { disableCSSOMInjection = false, disableVendorPrefixes = false, stylisPlugins = [] } = options;
         return (props: P) => {
@@ -23,7 +24,7 @@ export default (options: StyledComponentsInjectorOptions = {}): StylesInjector =
                     disableVendorPrefixes={disableVendorPrefixes}
                     stylisPlugins={stylisPlugins}
                     // @ts-ignore
-                    target={shadowRoot}
+                    target={stylesWrapper}
                 >
                     <Component {...props}/>
                 </StyleSheetManager>

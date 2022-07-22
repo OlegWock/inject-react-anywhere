@@ -19,7 +19,8 @@ const createNoopStylesInjector = (): StylesInjector => {
         Component: ComponentType<P>,
         shadowHost: HTMLDivElement,
         shadowRoot: ShadowRoot,
-        mountingInto: HTMLDivElement
+        mountingInto: HTMLDivElement,
+        stylesWrapper: HTMLDivElement,
     ) => {
         return Component;
     };
@@ -30,12 +31,13 @@ export const stringStyles = (styles: string[]): StylesInjector => {
         Component: ComponentType<P>,
         shadowHost: HTMLDivElement,
         shadowRoot: ShadowRoot,
-        mountingInto: HTMLDivElement
+        mountingInto: HTMLDivElement,
+        stylesWrapper: HTMLDivElement,
     ) => {
         const combined = styles.join('\n');
         const styleTag = document.createElement('style');
         styleTag.append(document.createTextNode(combined));
-        shadowRoot.append(styleTag);
+        stylesWrapper.append(styleTag);
         return Component;
     };
 };
@@ -45,11 +47,12 @@ export const combineStyleInjectors = (...injectors: StylesInjector[]): StylesInj
         Component: ComponentType<P>,
         shadowHost: HTMLDivElement,
         shadowRoot: ShadowRoot,
-        mountingInto: HTMLDivElement
+        mountingInto: HTMLDivElement,
+        stylesWrapper: HTMLDivElement,
     ) => {
         let LocalComponent = Component;
         injectors.forEach(injector => {
-            LocalComponent = injector(LocalComponent, shadowHost, shadowRoot, mountingInto);
+            LocalComponent = injector(LocalComponent, shadowHost, shadowRoot, mountingInto, stylesWrapper);
         });
         return LocalComponent;
     }

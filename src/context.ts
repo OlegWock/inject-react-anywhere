@@ -5,6 +5,7 @@ export interface ContextTypeDefault {
     shadowHost: null;
     shadowRoot: null;
     mountedInto: null;
+    stylesWrapper: null;
     unmountRoot: null;
 }
 
@@ -13,6 +14,7 @@ export interface ContextTypeExtended {
     shadowHost: HTMLDivElement;
     shadowRoot: ShadowRoot;
     mountedInto: HTMLDivElement;
+    stylesWrapper: HTMLDivElement;
     unmountRoot: () => void;
 }
 
@@ -23,5 +25,6 @@ export const Context = React.createContext<ContextType>({
     shadowHost: null,
     shadowRoot: null,
     mountedInto: null,
+    stylesWrapper: null,
     unmountRoot: null,
 });

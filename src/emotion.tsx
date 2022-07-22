@@ -12,7 +12,8 @@ export default (options: EmotionInjectorOptions = {}): StylesInjector => {
         Component: ComponentType<P>,
         shadowHost: HTMLDivElement,
         shadowRoot: ShadowRoot,
-        mountingInto: HTMLDivElement
+        mountingInto: HTMLDivElement,
+        stylesWrapper: HTMLDivElement,
     ) => {
         const { stylisPlugins = [] } = options;
         // Some fluck with types. TS thinks createCache isn't callable
@@ -23,7 +24,7 @@ export default (options: EmotionInjectorOptions = {}): StylesInjector => {
                 .replace(/[^a-z]+/g, '')
                 .slice(0, 5),
             stylisPlugins: stylisPlugins,
-            container: shadowRoot,
+            container: stylesWrapper,
         });
         return (props: P) => {
             return (
