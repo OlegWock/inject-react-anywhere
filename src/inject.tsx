@@ -120,7 +120,7 @@ export const injectComponent = async <P,>(
     };
 };
 
-export const createShadowPortal = async (): Promise<ShadowPortal> => {
+export const createShadowPortal = (): ShadowPortal => {
     const id = uuidv4();
     const shadowHost = document.createElement('div');
     shadowHost.id = id;
