@@ -16,6 +16,7 @@ export interface ShadowPortal {
 
 interface InjectOptions<P> {
     includeCssReset?: boolean;
+    useClosedShadow?: boolean,
     mountStrategy?: (Component: ComponentType<P>, props: P, mountInto: HTMLDivElement) => Promise<RenderResult<P>>
 }
 
@@ -73,7 +74,7 @@ export const injectComponent = async <P,>(
     const id = uuidv4();
     const shadowHost = document.createElement('div');
     shadowHost.id = id;
-    const shadowRoot = shadowHost.attachShadow({ mode: 'open' }); // Should this be an option?
+    const shadowRoot = shadowHost.attachShadow({ mode: options.useClosedShadow ? 'closed' : 'open' });
     const mountedInto = document.createElement('div');
     const stylesWrapper = document.createElement('div');
     mountedInto.classList.add('inject-react-anywhere-mounted-into');

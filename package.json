@@ -1,6 +1,6 @@
 {
   "name": "inject-react-anywhere",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Inject react components into DOM of 3rd party sites. Particularly useful in browser extensions",
   "type": "module",
   "module": "dist/esm/index.js",

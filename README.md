@@ -331,6 +331,18 @@ const main = async () => {
 main();
 ```
 
+### ...limit access of host site to my component
+
+You can try `useClosedShadow` option of `injectComponent`. This won't allow scripts from host to access inside your Shadow DOM, where your component is mounted.
+
+```js
+const controller = await injectComponent(InjectableGreeter, {
+        name: 'Oleh',
+    }, {
+        useClosedShadow: trur
+    });
+```
+
 ### ...wrap my component in providers
 
 Just create wrapper component and pass it to `createInjectableComponent`.
