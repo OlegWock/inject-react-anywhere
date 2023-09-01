@@ -15,6 +15,7 @@ export interface ShadowPortal {
 }
 
 interface InjectOptions<P> {
+    shadowHost?: HTMLElement;
     includeCssReset?: boolean;
     useClosedShadow?: boolean,
     mountStrategy?: (Component: ComponentType<P>, props: P, mountInto: HTMLDivElement) => Promise<RenderResult<P>>
@@ -22,7 +23,7 @@ interface InjectOptions<P> {
 
 export interface InjectionResult<P> {
     id: string;
-    shadowHost: HTMLDivElement;
+    shadowHost: HTMLElement;
     shadowRoot: ShadowRoot;
     mountedInto: HTMLDivElement;
     stylesWrapper: HTMLDivElement;
@@ -36,7 +37,7 @@ export interface RenderResult<P> {
     unmount: InjectionResult<P>['unmount'];
 }
 
-const mountUsingReactDomRender = async <P,>(
+const mountUsingReactDomRender = async <P extends JSX.IntrinsicAttributes,>(
     Component: ComponentType<P>,
     props: P,
     mountInto: HTMLDivElement
@@ -65,14 +66,14 @@ const mountUsingReactDomRender = async <P,>(
     });
 };
 
-export const injectComponent = async <P,>(
+export const injectComponent = async <P extends JSX.IntrinsicAttributes,>(
     injectable: InjectableComponent<P>,
     props: P,
     options: InjectOptions<P> = {}
 ): Promise<InjectionResult<P>> => {
     const {includeCssReset = true, mountStrategy = mountUsingReactDomRender} = options;
     const id = uuidv4();
-    const shadowHost = document.createElement('div');
+    const shadowHost = options.shadowHost ?? document.createElement('div');
     shadowHost.id = id;
     const shadowRoot = shadowHost.attachShadow({ mode: options.useClosedShadow ? 'closed' : 'open' });
     const mountedInto = document.createElement('div');

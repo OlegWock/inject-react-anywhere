@@ -9,9 +9,9 @@ interface StyledComponentsInjectorOptions {
 }
 
 export default (options: StyledComponentsInjectorOptions = {}): StylesInjector => {
-    return <P,>(
+    return <P extends JSX.IntrinsicAttributes,>(
         Component: ComponentType<P>,
-        shadowHost: HTMLDivElement,
+        shadowHost: HTMLElement,
         shadowRoot: ShadowRoot,
         mountingInto: HTMLDivElement,
         stylesWrapper: HTMLDivElement,

@@ -17,7 +17,7 @@ export interface InjectableComponent<P> {
 const createNoopStylesInjector = (): StylesInjector => {
     return <T, P>(
         Component: ComponentType<P>,
-        shadowHost: HTMLDivElement,
+        shadowHost: HTMLElement,
         shadowRoot: ShadowRoot,
         mountingInto: HTMLDivElement,
         stylesWrapper: HTMLDivElement,
@@ -29,7 +29,7 @@ const createNoopStylesInjector = (): StylesInjector => {
 export const stringStyles = (styles: string[]): StylesInjector => {
     return <P,>(
         Component: ComponentType<P>,
-        shadowHost: HTMLDivElement,
+        shadowHost: HTMLElement,
         shadowRoot: ShadowRoot,
         mountingInto: HTMLDivElement,
         stylesWrapper: HTMLDivElement,
@@ -43,9 +43,9 @@ export const stringStyles = (styles: string[]): StylesInjector => {
 };
 
 export const combineStyleInjectors = (...injectors: StylesInjector[]): StylesInjector => {
-    return <P,>(
+    return <P extends JSX.IntrinsicAttributes,>(
         Component: ComponentType<P>,
-        shadowHost: HTMLDivElement,
+        shadowHost: HTMLElement,
         shadowRoot: ShadowRoot,
         mountingInto: HTMLDivElement,
         stylesWrapper: HTMLDivElement,

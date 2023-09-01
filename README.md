@@ -19,6 +19,10 @@ I invite you to share your thoughts about this library. If you have some ideas o
 
 If you have bugs to report — create an [issue](https://github.com/OlegWock/inject-react-anywhere/issues). And if you ready to code some features yourself — feel free to make pull request (but please create issue with description of intended changes so we can discuss optimal way to implement it).
 
+## Breaking changes in 3.x.x
+
+* Breaking change in types. Also added option to attach shadow root to provided node (`shadowHost`).
+
 ## Breaking changes in 2.x.x
 
 * Style injectors now should accept one extra parameter `stylesWrapper` (div element) and if possible inject styles into this node. Built-in style injectors were updated to support this. This change required to support mirroring of styles and portalling part of component into different shadow dom. While you should be able to upgrade without any changes, this is considered breaking change thus bump to 2.0.0.
@@ -409,7 +413,7 @@ const createInjectableComponent = <P>(component: ComponentType<P>, options: Crea
 This function accepts component to wrap and options. Options currently consist of just two fields: `name` (will be populated automatically) and `styles`. Styles can be either `null` (no styles at all), array of css strings or `StylesInjector`. `StylesInjector` is a function which accepts component and parameters, injects styles (preferably into `stylesWrapper`) and returns new component. 
 
 ```ts
-type StylesInjector = <P>(Component: ComponentType<P>, shadowHost: HTMLDivElement, shadowRoot: ShadowRoot, mountingInto: HTMLDivElement, stylesWrapper: HTMLDivElement) => ComponentType<P>;
+type StylesInjector = <P>(Component: ComponentType<P>, shadowHost: HTMLElement, shadowRoot: ShadowRoot, mountingInto: HTMLDivElement, stylesWrapper: HTMLDivElement) => ComponentType<P>;
 ```
 
 By implementing your own style injector you can add support for other styling solutions. For reference please check [`emotion.tsx`](src/emotion.tsx) or [`styled-components.tsx`](src/styled-components.tsx), they both are implementations of `StylesInjector`.
@@ -424,7 +428,7 @@ SIgnature:
 const injectComponent = async <P>(injectable: InjectableComponent<P>, props: P, options: InjectOptions<P> = {}): Promise<InjectionResult<P>>
 ```
 
-This function accepts `injectable` which was returned from `createInjectableComponent` function, props and optional options (sorry!). Options consist of `includeCssReset` (boolean, `true` by default) which controls should library include CSS reset into shadow dom. In most cases you want to get rid of any impact of parent site's styles on your component, but sometimes disabling this might be useful too. And the other option is `mountStrategy`. This is function which mounts component into DOM node and returns `updateProps` and `unmount` function. This mostly needed to support React v18 rendering. If ommited -- standart `ReactDOM.render` will be used. You probably don't need to provide your own function here.
+This function accepts `injectable` which was returned from `createInjectableComponent` function, props and optional options (sorry!). Options consist of `includeCssReset` (boolean, `true` by default) which controls should library include CSS reset into shadow dom. In most cases you want to get rid of any impact of parent site's styles on your component, but sometimes disabling this might be useful too. Another option is `shadowHost` which allows you to provide element to attach shadow root to. And the last option is `mountStrategy`. This is function which mounts component into DOM node and returns `updateProps` and `unmount` function. This mostly needed to support React v18 rendering. If ommited -- standart `ReactDOM.render` will be used. You probably don't need to provide your own function here.
 
 ```ts
 import { injectComponent } from 'inject-react-anywhere';

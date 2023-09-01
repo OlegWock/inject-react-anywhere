@@ -8,9 +8,9 @@ interface EmotionInjectorOptions {
 }
 
 export default (options: EmotionInjectorOptions = {}): StylesInjector => {
-    return <P,>(
+    return <P extends JSX.IntrinsicAttributes,>(
         Component: ComponentType<P>,
-        shadowHost: HTMLDivElement,
+        shadowHost: HTMLElement,
         shadowRoot: ShadowRoot,
         mountingInto: HTMLDivElement,
         stylesWrapper: HTMLDivElement,

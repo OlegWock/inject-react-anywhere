@@ -11,7 +11,7 @@ export interface ContextTypeDefault {
 
 export interface ContextTypeExtended {
     insideShadowDom: true;
-    shadowHost: HTMLDivElement;
+    shadowHost: HTMLElement;
     shadowRoot: ShadowRoot;
     mountedInto: HTMLDivElement;
     stylesWrapper: HTMLDivElement;
