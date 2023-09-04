@@ -65,9 +65,9 @@ const mountUsingReactDomRender = async <P extends JSX.IntrinsicAttributes>(
     });
 };
 
-export const injectComponent = async <P extends JSX.IntrinsicAttributes>(
+export const injectComponent = async <P extends {}>(
     injectable: InjectableComponent<P>,
-    props: P,
+    props: P & JSX.IntrinsicAttributes,
     options: InjectOptions<P> = {}
 ): Promise<InjectionResult<P>> => {
     const { includeCssReset = true, mountStrategy = mountUsingReactDomRender } = options;
