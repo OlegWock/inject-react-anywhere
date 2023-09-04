@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { RenderResult } from "./inject.js";
-import { ComponentType } from "./types.js";
+import { RenderResult } from './inject.js';
+import { ComponentType } from './types.js';
 
 export default async <P,>(
     Component: ComponentType<P>,

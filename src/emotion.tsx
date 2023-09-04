@@ -8,12 +8,12 @@ interface EmotionInjectorOptions {
 }
 
 export default (options: EmotionInjectorOptions = {}): StylesInjector => {
-    return <P extends JSX.IntrinsicAttributes,>(
+    return <P extends JSX.IntrinsicAttributes>(
         Component: ComponentType<P>,
         shadowHost: HTMLElement,
         shadowRoot: ShadowRoot,
         mountingInto: HTMLDivElement,
-        stylesWrapper: HTMLDivElement,
+        stylesWrapper: HTMLDivElement
     ) => {
         const { stylisPlugins = [] } = options;
         // Some fluck with types. TS thinks createCache isn't callable

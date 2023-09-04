@@ -343,7 +343,7 @@ You can try `useClosedShadow` option of `injectComponent`. This won't allow scri
 const controller = await injectComponent(InjectableGreeter, {
         name: 'Oleh',
     }, {
-        useClosedShadow: trur
+        useClosedShadow: true
     });
 ```
 
@@ -511,11 +511,35 @@ class Greeter extends React.Component {
 export default withShadowDom(Greeter);
 ```
 
+### stringStyles
+
+```js
+import { stringStyles } from 'inject-react-anywhere';
+```
+
+This is style injector which accepts array of strings (CSS code) which will be injected in each Shadow DOM using `<style>` tag.
+
+### remoteStyles
+
+```js
+import { remoteStyles } from 'inject-react-anywhere';
+```
+
+This is style injector which accepts array of strings (URLs to CSS files) which will be injected in each Shadow DOM using `<link>` tags.
+
 ### emotion
+
+```js
+import emotion from 'inject-react-anywhere/emotion';
+```
 
 This function accepts `options` object with single field `stylisPlugins` which will be passed to emotion. Refer to [emotion docs](https://emotion.sh/docs/@emotion/cache#stylisplugins) for more details.
 
 ### styledComponents
+
+```js
+import styledComponents from 'inject-react-anywhere/styled-components';
+```
 
 This function accepts `options` object with fields `disableCSSOMInjection`, `disableVendorPrefixes` and `stylisPlugins`. They will be passed to styled-components library without modification. Refer to [styled-components docs](https://styled-components.com/docs/api#stylesheetmanager) for more details.
 

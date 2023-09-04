@@ -9,12 +9,12 @@ interface StyledComponentsInjectorOptions {
 }
 
 export default (options: StyledComponentsInjectorOptions = {}): StylesInjector => {
-    return <P extends JSX.IntrinsicAttributes,>(
+    return <P extends JSX.IntrinsicAttributes>(
         Component: ComponentType<P>,
         shadowHost: HTMLElement,
         shadowRoot: ShadowRoot,
         mountingInto: HTMLDivElement,
-        stylesWrapper: HTMLDivElement,
+        stylesWrapper: HTMLDivElement
     ) => {
         const { disableCSSOMInjection = false, disableVendorPrefixes = false, stylisPlugins = [] } = options;
         return (props: P) => {
@@ -26,7 +26,7 @@ export default (options: StyledComponentsInjectorOptions = {}): StylesInjector =
                     // @ts-ignore
                     target={stylesWrapper}
                 >
-                    <Component {...props}/>
+                    <Component {...props} />
                 </StyleSheetManager>
             );
         };

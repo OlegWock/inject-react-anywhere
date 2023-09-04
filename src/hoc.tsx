@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { Context } from "./context.js";
+import React, { useContext } from 'react';
+import { Context } from './context.js';
 
 // Reference https://react-typescript-cheatsheet.netlify.app/docs/hoc/intro/
 
@@ -11,11 +11,8 @@ export interface ShadowDomProps {
     unmountRoot: () => void | null;
 }
 
-export const withShadowDom = <P extends ShadowDomProps>(
-    WrappedComponent: React.ComponentType<P>,
-) => {
-
-    const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component";
+export const withShadowDom = <P extends ShadowDomProps>(WrappedComponent: React.ComponentType<P>) => {
+    const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
     const ComponentWithShadowDom = (props: Omit<P, keyof ShadowDomProps>) => {
         const contextProps = useContext(Context);
         return <WrappedComponent {...contextProps} {...(props as P)} />;
@@ -23,4 +20,4 @@ export const withShadowDom = <P extends ShadowDomProps>(
 
     ComponentWithShadowDom.displayName = `withShadowDom(${displayName})`;
     return ComponentWithShadowDom;
-}
+};

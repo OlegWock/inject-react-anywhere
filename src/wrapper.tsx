@@ -20,7 +20,7 @@ const createNoopStylesInjector = (): StylesInjector => {
         shadowHost: HTMLElement,
         shadowRoot: ShadowRoot,
         mountingInto: HTMLDivElement,
-        stylesWrapper: HTMLDivElement,
+        stylesWrapper: HTMLDivElement
     ) => {
         return Component;
     };
@@ -32,7 +32,7 @@ export const stringStyles = (styles: string[]): StylesInjector => {
         shadowHost: HTMLElement,
         shadowRoot: ShadowRoot,
         mountingInto: HTMLDivElement,
-        stylesWrapper: HTMLDivElement,
+        stylesWrapper: HTMLDivElement
     ) => {
         const combined = styles.join('\n');
         const styleTag = document.createElement('style');
@@ -42,20 +42,39 @@ export const stringStyles = (styles: string[]): StylesInjector => {
     };
 };
 
-export const combineStyleInjectors = (...injectors: StylesInjector[]): StylesInjector => {
-    return <P extends JSX.IntrinsicAttributes,>(
+export const remoteStyles = (urls: string[]): StylesInjector => {
+    return <P,>(
         Component: ComponentType<P>,
         shadowHost: HTMLElement,
         shadowRoot: ShadowRoot,
         mountingInto: HTMLDivElement,
-        stylesWrapper: HTMLDivElement,
+        stylesWrapper: HTMLDivElement
+    ) => {
+        const tags = urls.map((url) => {
+            const tag = document.createElement('link');
+            tag.rel = 'stylesheet';
+            tag.href = url;
+            return tag;
+        });
+        stylesWrapper.append(...tags);
+        return Component;
+    };
+};
+
+export const combineStyleInjectors = (...injectors: StylesInjector[]): StylesInjector => {
+    return <P extends JSX.IntrinsicAttributes>(
+        Component: ComponentType<P>,
+        shadowHost: HTMLElement,
+        shadowRoot: ShadowRoot,
+        mountingInto: HTMLDivElement,
+        stylesWrapper: HTMLDivElement
     ) => {
         let LocalComponent = Component;
-        injectors.forEach(injector => {
+        injectors.forEach((injector) => {
             LocalComponent = injector(LocalComponent, shadowHost, shadowRoot, mountingInto, stylesWrapper);
         });
         return LocalComponent;
-    }
+    };
 };
 
 export const createInjectableComponent = <P,>(

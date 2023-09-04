@@ -6,19 +6,18 @@ import { Context } from './context.js';
 import { ComponentType } from './types.js';
 import { createMirror } from './mirror-node.js';
 
-
 export interface ShadowPortal {
-    shadowHost: HTMLDivElement,
-    shadowRoot: ShadowRoot,
-    portalInto: HTMLDivElement,
-    stylesWrapper: HTMLDivElement,
+    shadowHost: HTMLDivElement;
+    shadowRoot: ShadowRoot;
+    portalInto: HTMLDivElement;
+    stylesWrapper: HTMLDivElement;
 }
 
 interface InjectOptions<P> {
     shadowHost?: HTMLElement;
     includeCssReset?: boolean;
-    useClosedShadow?: boolean,
-    mountStrategy?: (Component: ComponentType<P>, props: P, mountInto: HTMLDivElement) => Promise<RenderResult<P>>
+    useClosedShadow?: boolean;
+    mountStrategy?: (Component: ComponentType<P>, props: P, mountInto: HTMLDivElement) => Promise<RenderResult<P>>;
 }
 
 export interface InjectionResult<P> {
@@ -37,7 +36,7 @@ export interface RenderResult<P> {
     unmount: InjectionResult<P>['unmount'];
 }
 
-const mountUsingReactDomRender = async <P extends JSX.IntrinsicAttributes,>(
+const mountUsingReactDomRender = async <P extends JSX.IntrinsicAttributes>(
     Component: ComponentType<P>,
     props: P,
     mountInto: HTMLDivElement
@@ -66,12 +65,12 @@ const mountUsingReactDomRender = async <P extends JSX.IntrinsicAttributes,>(
     });
 };
 
-export const injectComponent = async <P extends JSX.IntrinsicAttributes,>(
+export const injectComponent = async <P extends JSX.IntrinsicAttributes>(
     injectable: InjectableComponent<P>,
     props: P,
     options: InjectOptions<P> = {}
 ): Promise<InjectionResult<P>> => {
-    const {includeCssReset = true, mountStrategy = mountUsingReactDomRender} = options;
+    const { includeCssReset = true, mountStrategy = mountUsingReactDomRender } = options;
     const id = uuidv4();
     const shadowHost = options.shadowHost ?? document.createElement('div');
     shadowHost.id = id;
@@ -84,11 +83,18 @@ export const injectComponent = async <P extends JSX.IntrinsicAttributes,>(
 
     if (includeCssReset) {
         const styleTag = document.createElement('style');
-        styleTag.innerHTML = '.inject-react-anywhere-mounted-into, .inject-react-anywhere-mounted-into::before, .inject-react-anywhere-mounted-into::after {all: initial;}';
+        styleTag.innerHTML =
+            '.inject-react-anywhere-mounted-into, .inject-react-anywhere-mounted-into::before, .inject-react-anywhere-mounted-into::after {all: initial;}';
         stylesWrapper.appendChild(styleTag);
     }
 
-    const ComponentWithStyles = injectable.stylesInjector(injectable.component, shadowHost, shadowRoot, mountedInto, stylesWrapper);
+    const ComponentWithStyles = injectable.stylesInjector(
+        injectable.component,
+        shadowHost,
+        shadowRoot,
+        mountedInto,
+        stylesWrapper
+    );
     const Component = (props: P) => {
         return (
             <Context.Provider
@@ -103,10 +109,10 @@ export const injectComponent = async <P extends JSX.IntrinsicAttributes,>(
                     },
                 }}
             >
-                <ComponentWithStyles {...props}/>
+                <ComponentWithStyles {...props} />
             </Context.Provider>
         );
-    } ;
+    };
 
     const renderResults = await mountStrategy(Component, props, mountedInto);
     return {
@@ -138,5 +144,5 @@ export const createShadowPortal = (): ShadowPortal => {
         shadowRoot,
         portalInto: mountedInto,
         stylesWrapper,
-    }
-}
+    };
+};
