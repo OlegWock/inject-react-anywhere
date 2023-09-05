@@ -97,6 +97,7 @@ export const injectComponent = async <P extends {}>(
         mountedInto,
         stylesWrapper
     );
+
     const Component = (props: P) => {
         return (
             <Context.Provider
@@ -116,6 +117,7 @@ export const injectComponent = async <P extends {}>(
         );
     };
 
+    await new Promise(r => setTimeout(r, 0)); // Give browser type to parse/apply styles
     const renderResults = await mountStrategy(Component, props, mountedInto);
     return {
         id,
