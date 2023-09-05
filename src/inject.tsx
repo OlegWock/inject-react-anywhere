@@ -36,18 +36,20 @@ export interface RenderResult<P> {
     unmount: InjectionResult<P>['unmount'];
 }
 
-const mountUsingReactDomRender = async <P extends JSX.IntrinsicAttributes>(
+const mountUsingReactDomRender = async <P,>(
     Component: ComponentType<P>,
     props: P,
     mountInto: HTMLDivElement
 ): Promise<RenderResult<P>> => {
     let propsSaved = { ...props };
     return new Promise((resolve) => {
+        // @ts-ignore
         ReactDOM.render(<Component {...propsSaved} />, mountInto, () => {
             const result: RenderResult<P> = {
                 updateProps: (newProps) => {
                     return new Promise((resolve) => {
                         propsSaved = { ...propsSaved, ...newProps };
+                        // @ts-ignore
                         ReactDOM.render(<Component {...propsSaved} />, mountInto, () => {
                             resolve();
                         });
@@ -72,8 +74,8 @@ export const injectComponent = async <P extends {}>(
 ): Promise<InjectionResult<P>> => {
     const { includeCssReset = true, mountStrategy = mountUsingReactDomRender } = options;
     const id = uuidv4();
-    const shadowHost = options.shadowHost ?? document.createElement('div');
-    shadowHost.id = id;
+    const shadowHost = options.shadowHost || document.createElement('div');
+    if (!options.shadowHost) shadowHost.id = id; // Don't mess with elements provided by user
     const shadowRoot = shadowHost.attachShadow({ mode: options.useClosedShadow ? 'closed' : 'open' });
     const mountedInto = document.createElement('div');
     const stylesWrapper = document.createElement('div');
@@ -88,7 +90,7 @@ export const injectComponent = async <P extends {}>(
         stylesWrapper.appendChild(styleTag);
     }
 
-    const ComponentWithStyles = injectable.stylesInjector(
+    const ComponentWithStyles = await injectable.stylesInjector(
         injectable.component,
         shadowHost,
         shadowRoot,

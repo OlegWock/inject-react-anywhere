@@ -62,7 +62,7 @@ export const remoteStyles = (urls: string[]): StylesInjector => {
 };
 
 export const combineStyleInjectors = (...injectors: StylesInjector[]): StylesInjector => {
-    return <P extends JSX.IntrinsicAttributes>(
+    return async <P extends JSX.IntrinsicAttributes>(
         Component: ComponentType<P>,
         shadowHost: HTMLElement,
         shadowRoot: ShadowRoot,
@@ -70,9 +70,9 @@ export const combineStyleInjectors = (...injectors: StylesInjector[]): StylesInj
         stylesWrapper: HTMLDivElement
     ) => {
         let LocalComponent = Component;
-        injectors.forEach((injector) => {
-            LocalComponent = injector(LocalComponent, shadowHost, shadowRoot, mountingInto, stylesWrapper);
-        });
+        for (const injector of injectors) {
+            LocalComponent = await injector(LocalComponent, shadowHost, shadowRoot, mountingInto, stylesWrapper);
+        }
         return LocalComponent;
     };
 };

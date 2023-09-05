@@ -11,11 +11,13 @@ export default async <P,>(
     let propsSaved = { ...props };
     return new Promise((resolve) => {
         const root = createRoot(mountInto);
+        // @ts-ignore
         root.render(<Component {...props} />);
         const result: RenderResult<P> = {
             updateProps: (newProps) => {
                 return new Promise((resolve) => {
                     propsSaved = { ...propsSaved, ...newProps };
+                    // @ts-ignore
                     root.render(<Component {...propsSaved} />);
                     resolve();
                 });

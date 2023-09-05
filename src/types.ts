@@ -6,6 +6,6 @@ export type StylesInjector = <P extends JSX.IntrinsicAttributes>(
     shadowRoot: ShadowRoot,
     mountingInto: HTMLDivElement,
     stylesDiv: HTMLDivElement
-) => ComponentType<P>;
+) => ComponentType<P> | Promise<ComponentType<P>>;
 
 export type ComponentType<P> = React.ComponentType<P>;
