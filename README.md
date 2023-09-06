@@ -381,7 +381,7 @@ export const InjectableGreeter = createInjectableComponent((props) => {
 
 ### ...use portals
 
-Just as you do normally. `ReactDOM.createPortal` goes brrrrrr. Additionally, you can use `createShadowPortal` function to create element for portalling into. This function just creates a node and attaches shadow DOM with two div nodes (one for portalling into it and second one for styles). However, it plays nicely with `connectPortal` returned by `injectComponent`. This function ShadowPortal controller and correctly injects styles from component into portals.
+Just as you do normally. `ReactDOM.createPortal` goes brrrrrr. Additionally, you can use `createShadowPortal` function to create element for portalling into. This function just creates a node and attaches shadow DOM with two div nodes (one for portalling into it and second one for styles). However, it plays nicely with `connectPortal` returned by `injectComponent`. This function accepts ShadowPortal controller and handles styles injection into connected portal.
 
 ```js
 import React from 'react';
@@ -403,7 +403,7 @@ const main = async () => {
 main();
 ```
 
-**NOTE:** currently `connectPortal` isn't supported by `emotion` styles injector. Use [legacy `mirrorStylesTo`](https://github.com/OlegWock/inject-react-anywhere/tree/abd612999501e92bcca5ecfbf582bf1f695b55dd?tab=readme-ov-file#use-portals) for emotion.
+**NOTE:** currently `connectPortal` isn't supported by `emotion` styles injector. Use [legacy `mirrorStylesInto`](https://github.com/OlegWock/inject-react-anywhere/tree/abd612999501e92bcca5ecfbf582bf1f695b55dd?tab=readme-ov-file#use-portals) for emotion.
 
 This is particularly useful if you embed your widget in small component and need to work around stacking context to display part of your component to go over parent boundaries. Just create portal and append its `shadowHost` to end of body.
 
