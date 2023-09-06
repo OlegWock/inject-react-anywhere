@@ -16,7 +16,8 @@
         "removeComments": true,
         "sourceMap": true,
         "strict": true,
-        "target": "es6"
+        "target": "es6",
+        "lib": ["DOM", "DOM.Iterable", "es2016"]
     },
     "exclude": [
         "node_modules",

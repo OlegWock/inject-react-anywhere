@@ -19,6 +19,11 @@ I invite you to share your thoughts about this library. If you have some ideas o
 
 If you have bugs to report — create an [issue](https://github.com/OlegWock/inject-react-anywhere/issues). And if you ready to code some features yourself — feel free to make pull request (but please create issue with description of intended changes so we can discuss optimal way to implement it).
 
+## Breaking changes in 5.x.x
+
+* `mirrorStylesInto` is now deprecated, use `connectPortal` to link portal destination with component.
+* Styles injectors now can use `useConnectedPortalsEffect(cb: (portals) => void)` in wrapped components to be notified when list of connected portals changes and inject styles in them.
+
 ## Breaking changes in 3.x.x
 
 * Breaking change in types. Also added option to attach shadow root to provided node (`shadowHost`).
@@ -376,7 +381,7 @@ export const InjectableGreeter = createInjectableComponent((props) => {
 
 ### ...use portals
 
-Just as you do normally. `ReactDOM.createPortal` goes brrrrrr. Additionally, you can use `createShadowPortal` function to create element for portalling into. This function just creates a node and attaches shadow DOM with two div nodes (one for portalling into it and second one for styles). However, it plays nicely with `mirrorStylesInto` returned by `injectComponent`. This function accepts DOM element and mirrors any changes to `stylesWrapper` element of original component to provided element. This way you can portals without issues with styles.
+Just as you do normally. `ReactDOM.createPortal` goes brrrrrr. Additionally, you can use `createShadowPortal` function to create element for portalling into. This function just creates a node and attaches shadow DOM with two div nodes (one for portalling into it and second one for styles). However, it plays nicely with `connectPortal` returned by `injectComponent`. This function ShadowPortal controller and correctly injects styles from component into portals.
 
 ```js
 import React from 'react';
@@ -389,7 +394,7 @@ const main = async () => {
         name: 'Oleh',
         portalInto: portalController.portalInto
     });
-    controller.mirrorStylesInto(portalController.stylesWrapper);
+    controller.connectPortal(portalController);
 
     document.body.append(portalController.shadowHost);
     document.body.append(controller.shadowHost);

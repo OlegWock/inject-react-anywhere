@@ -3,21 +3,14 @@ import ReactDOM from 'react-dom';
 import { InjectableComponent } from './wrapper.js';
 import { v4 as uuidv4 } from 'uuid';
 import { Context } from './context.js';
-import { ComponentType } from './types.js';
+import { ComponentType, ShadowPortal } from './types.js';
 import { createMirror } from './mirror-node.js';
-
-export interface ShadowPortal {
-    shadowHost: HTMLDivElement;
-    shadowRoot: ShadowRoot;
-    portalInto: HTMLDivElement;
-    stylesWrapper: HTMLDivElement;
-}
 
 interface InjectOptions<P> {
     shadowHost?: HTMLElement;
     includeCssReset?: boolean;
     useClosedShadow?: boolean;
-    mountStrategy?: (Component: ComponentType<P>, props: P, mountInto: HTMLDivElement) => Promise<RenderResult<P>>;
+    mountStrategy?: (Component: ComponentType<P & InjectComponentInternalProps>, props: P & InjectComponentInternalProps, mountInto: HTMLDivElement) => Promise<RenderResult<P>>;
 }
 
 export interface InjectionResult<P> {
@@ -29,6 +22,7 @@ export interface InjectionResult<P> {
     updateProps: (newProps: Partial<P>) => Promise<void>;
     unmount: () => Promise<void>;
     mirrorStylesInto: (node: HTMLElement) => void;
+    connectPortal: (portal: ShadowPortal) => void;
 }
 
 export interface RenderResult<P> {
@@ -37,8 +31,8 @@ export interface RenderResult<P> {
 }
 
 const mountUsingReactDomRender = async <P,>(
-    Component: ComponentType<P>,
-    props: P,
+    Component: ComponentType<P & InjectComponentInternalProps>,
+    props: P & InjectComponentInternalProps,
     mountInto: HTMLDivElement
 ): Promise<RenderResult<P>> => {
     let propsSaved = { ...props };
@@ -67,9 +61,13 @@ const mountUsingReactDomRender = async <P,>(
     });
 };
 
+type InjectComponentInternalProps = {
+    connectedPortals: ShadowPortal[],
+};
+
 export const injectComponent = async <P extends {}>(
     injectable: InjectableComponent<P>,
-    props: P & JSX.IntrinsicAttributes,
+    props: P,
     options: InjectOptions<P> = {}
 ): Promise<InjectionResult<P>> => {
     const { includeCssReset = true, mountStrategy = mountUsingReactDomRender } = options;
@@ -82,6 +80,8 @@ export const injectComponent = async <P extends {}>(
     mountedInto.classList.add('inject-react-anywhere-mounted-into');
     shadowRoot.appendChild(mountedInto);
     shadowRoot.appendChild(stylesWrapper);
+
+    const connectedPortals: ShadowPortal[] = [];
 
     if (includeCssReset) {
         const styleTag = document.createElement('style');
@@ -98,7 +98,7 @@ export const injectComponent = async <P extends {}>(
         stylesWrapper
     );
 
-    const Component = (props: P) => {
+    const Component = ({ connectedPortals, ...props }: P & InjectComponentInternalProps) => {
         return (
             <Context.Provider
                 value={{
@@ -110,15 +110,21 @@ export const injectComponent = async <P extends {}>(
                     unmountRoot: () => {
                         renderResults.unmount();
                     },
+                    connectedPortals,
                 }}
             >
-                <ComponentWithStyles {...props} />
+                <ComponentWithStyles {...props as unknown as P} />
             </Context.Provider>
         );
     };
 
     await new Promise(r => setTimeout(r, 0)); // Give browser type to parse/apply styles
-    const renderResults = await mountStrategy(Component, props, mountedInto);
+
+    const finalProps = {
+        ...props,
+        connectedPortals,
+    };
+    const renderResults = await mountStrategy(Component, finalProps, mountedInto);
     return {
         id,
         shadowHost,
@@ -127,6 +133,12 @@ export const injectComponent = async <P extends {}>(
         stylesWrapper,
         mirrorStylesInto: (node: HTMLElement) => {
             createMirror(stylesWrapper, node);
+        },
+        connectPortal: (portal: ShadowPortal) => {
+            if (connectedPortals.includes(portal)) return;
+            connectedPortals.push(portal);
+            // @ts-ignore Unknown prop because we don't expose internal props in types
+            renderResults.updateProps({ connectedPortals });
         },
         ...renderResults,
     };

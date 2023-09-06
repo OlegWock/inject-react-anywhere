@@ -1,5 +1,6 @@
-import React from 'react';
-import { ComponentType, StylesInjector } from './types.js';
+import React, { useRef } from 'react';
+import { ComponentType, ShadowPortal, StylesInjector } from './types.js';
+import { useConnectedPortalsEffect } from './hooks.js';
 
 type StylesOptions = null | string[] | StylesInjector;
 
@@ -27,7 +28,7 @@ const createNoopStylesInjector = (): StylesInjector => {
 };
 
 export const stringStyles = (styles: string[]): StylesInjector => {
-    return <P,>(
+    return <P extends JSX.IntrinsicAttributes>(
         Component: ComponentType<P>,
         shadowHost: HTMLElement,
         shadowRoot: ShadowRoot,
@@ -38,12 +39,25 @@ export const stringStyles = (styles: string[]): StylesInjector => {
         const styleTag = document.createElement('style');
         styleTag.append(document.createTextNode(combined));
         stylesWrapper.append(styleTag);
-        return Component;
+
+        return (props: P) => {
+            const handledPortalsRef = useRef(new Set<ShadowPortal>());
+
+            useConnectedPortalsEffect((portals) => {
+                portals.forEach((portal) => {
+                    if (!handledPortalsRef.current.has(portal)) {
+                        handledPortalsRef.current.add(portal);
+                        portal.stylesWrapper.append(styleTag.cloneNode(true));
+                    }
+                });
+            });
+            return (<Component {...props} />);
+        };
     };
 };
 
 export const remoteStyles = (urls: string[]): StylesInjector => {
-    return <P,>(
+    return <P extends JSX.IntrinsicAttributes>(
         Component: ComponentType<P>,
         shadowHost: HTMLElement,
         shadowRoot: ShadowRoot,
@@ -57,7 +71,20 @@ export const remoteStyles = (urls: string[]): StylesInjector => {
             return tag;
         });
         stylesWrapper.append(...tags);
-        return Component;
+        return (props: P) => {
+            const handledPortalsRef = useRef(new Set<ShadowPortal>());
+
+            useConnectedPortalsEffect((portals) => {
+                portals.forEach((portal) => {
+                    if (!handledPortalsRef.current.has(portal)) {
+                        handledPortalsRef.current.add(portal);
+                        const copiedTags = tags.map(tag => tag.cloneNode(true))
+                        portal.stylesWrapper.append(...copiedTags);
+                    }
+                });
+            });
+            return (<Component {...props} />);
+        };
     };
 };
 

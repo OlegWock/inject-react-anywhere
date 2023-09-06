@@ -2,6 +2,7 @@ import React from 'react';
 import createCache, { Options } from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
 import { ComponentType, StylesInjector } from './types.js';
+import { useShadowDom } from './hooks.js';
 
 interface EmotionInjectorOptions {
     stylisPlugins?: Options['stylisPlugins'];
@@ -26,6 +27,7 @@ export default (options: EmotionInjectorOptions = {}): StylesInjector => {
             stylisPlugins: stylisPlugins,
             container: stylesWrapper,
         });
+        const { insideShadowDom, connectedPortals } = useShadowDom();
         return (props: P) => {
             return (
                 <CacheProvider value={cache}>

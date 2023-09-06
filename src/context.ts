@@ -1,4 +1,5 @@
 import React from 'react';
+import { ShadowPortal } from './types.js';
 
 export interface ContextTypeDefault {
     insideShadowDom: false;
@@ -7,6 +8,7 @@ export interface ContextTypeDefault {
     mountedInto: null;
     stylesWrapper: null;
     unmountRoot: null;
+    connectedPortals: [],
 }
 
 export interface ContextTypeExtended {
@@ -16,6 +18,7 @@ export interface ContextTypeExtended {
     mountedInto: HTMLDivElement;
     stylesWrapper: HTMLDivElement;
     unmountRoot: () => void;
+    connectedPortals: ShadowPortal[]
 }
 
 export type ContextType = ContextTypeDefault | ContextTypeExtended;
@@ -27,4 +30,5 @@ export const Context = React.createContext<ContextType>({
     mountedInto: null,
     stylesWrapper: null,
     unmountRoot: null,
+    connectedPortals: [],
 });
