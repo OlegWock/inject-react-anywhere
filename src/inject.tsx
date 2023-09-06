@@ -81,7 +81,7 @@ export const injectComponent = async <P extends {}>(
     shadowRoot.appendChild(mountedInto);
     shadowRoot.appendChild(stylesWrapper);
 
-    const connectedPortals: ShadowPortal[] = [];
+    const connectedPortals = { current: [] as ShadowPortal[] };
 
     if (includeCssReset) {
         const styleTag = document.createElement('style');
@@ -122,7 +122,7 @@ export const injectComponent = async <P extends {}>(
 
     const finalProps = {
         ...props,
-        connectedPortals,
+        connectedPortals: connectedPortals.current,
     };
     const renderResults = await mountStrategy(Component, finalProps, mountedInto);
     return {
@@ -135,10 +135,10 @@ export const injectComponent = async <P extends {}>(
             createMirror(stylesWrapper, node);
         },
         connectPortal: (portal: ShadowPortal) => {
-            if (connectedPortals.includes(portal)) return;
-            connectedPortals.push(portal);
+            if (connectedPortals.current.includes(portal)) return;
+            connectedPortals.current = [...connectedPortals.current, portal];
             // @ts-ignore Unknown prop because we don't expose internal props in types
-            renderResults.updateProps({ connectedPortals });
+            renderResults.updateProps({ connectedPortals: connectedPortals.current });
         },
         ...renderResults,
     };

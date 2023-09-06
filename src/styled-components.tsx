@@ -10,6 +10,8 @@ interface StyledComponentsInjectorOptions {
     stylisPlugins?: sc.StyleSheetManagerProps['stylisPlugins'];
 }
 
+// A lot of this code copypasted from styled-components source and modified to work with multiple targets
+
 const SPLITTER = '/*!sc*/\n';
 
 const makeGroupedTag = (tag: any) => {
@@ -159,7 +161,7 @@ const getSheet = (tag: HTMLStyleElement): CSSStyleSheet => {
     throw new Error('Styled components error with code 17');
 }
 
-const makeTag = ({ isServer, useCSSOMInjection, target }: {isServer: boolean, useCSSOMInjection: boolean, target: HTMLElement[]}) => {
+const makeTag = ({ isServer, useCSSOMInjection, target }: { isServer: boolean, useCSSOMInjection: boolean, target: HTMLElement[] }) => {
     if (isServer) {
         return new VirtualTag(target[0]);
     } else if (useCSSOMInjection) {
@@ -176,7 +178,7 @@ const CSSOMTag = class CSSOMTag {
     length: number;
 
     constructor(targets: (HTMLElement | undefined)[]) {
-        this.elements = targets.map(target => makeStyleTag(target));
+        this.elements = (targets || [undefined]).map(target => makeStyleTag(target));
 
         // Avoid Edge bug where empty style elements don't create sheets
         this.elements.forEach(element => element.appendChild(document.createTextNode('')));
@@ -219,7 +221,7 @@ const TextTag = class TextTag {
     length: number;
 
     constructor(targets: (HTMLElement | undefined)[]) {
-        this.elements = targets.map(target => makeStyleTag(target));
+        this.elements = (targets || [undefined]).map(target => makeStyleTag(target));
         this.nodesMatrix = this.elements.map(el => el.childNodes);
         this.length = 0;
     }
@@ -289,22 +291,18 @@ const VirtualTag = class VirtualTag {
     }
 };
 
-const useMonkeyPatchSheet = () => {
-    // @ts-ignore
-    const { styleSheet } = useContext(sc.StyleSheetContext);
-    useMemo(() => {
-        const originalMethod = styleSheet.reconstructWithOptions;
-        styleSheet.reconstructWithOptions = (opts: any, withNames: any) => {
-            const newSheet = originalMethod(opts, withNames);
-            newSheet.getTag = () => {
-                console.log('Patched styled-components getTag called');
-                return newSheet.tag || (newSheet.tag = makeGroupedTag(makeTag(newSheet.options)));
-            };
+// @ts-ignore
+class CustomStylesheet extends sc.__PRIVATE__.StyleSheet {
+    getTag() {
+        // @ts-ignore
+        return this.tag || (this.tag = makeGroupedTag(makeTag(this.options)));
+    }
 
-            return newSheet;
-        };
-    }, [styleSheet]);
-};
+    reconstructWithOptions(options: any, withNames = true) {
+        // @ts-ignore
+        return new CustomStylesheet({ ...this.options, ...options }, this.gs, (withNames && this.names) || undefined);
+    }
+}
 
 export default (options: StyledComponentsInjectorOptions = {}): StylesInjector => {
     return <P extends JSX.IntrinsicAttributes>(
@@ -316,10 +314,11 @@ export default (options: StyledComponentsInjectorOptions = {}): StylesInjector =
     ) => {
         const { disableCSSOMInjection = false, disableVendorPrefixes = false, stylisPlugins = [] } = options;
         return (props: P) => {
-            useMonkeyPatchSheet();
             const { insideShadowDom, connectedPortals } = useShadowDom();
-            const styleTargets = useMemo(() => [stylesWrapper, ...connectedPortals.map((p: ShadowPortal) => p.stylesWrapper)], []);
+            // @ts-ignore
+            const sheet = useMemo(() => new CustomStylesheet({target: [stylesWrapper, ...connectedPortals.map((p: ShadowPortal) => p.stylesWrapper)]}), [connectedPortals]);
             return (
+                // @ts-ignore
                 <sc.StyleSheetManager
                     disableCSSOMInjection={disableCSSOMInjection}
                     disableVendorPrefixes={disableVendorPrefixes}
@@ -327,7 +326,7 @@ export default (options: StyledComponentsInjectorOptions = {}): StylesInjector =
                     enableVendorPrefixes={!disableVendorPrefixes}
                     stylisPlugins={stylisPlugins}
                     // @ts-ignore
-                    target={styleTargets}
+                    sheet={sheet}
                 >
                     <Component {...props} />
                 </sc.StyleSheetManager>
