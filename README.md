@@ -403,8 +403,6 @@ const main = async () => {
 main();
 ```
 
-**NOTE:** currently `connectPortal` isn't supported by `emotion` styles injector. Use [legacy `mirrorStylesInto`](https://github.com/OlegWock/inject-react-anywhere/tree/abd612999501e92bcca5ecfbf582bf1f695b55dd?tab=readme-ov-file#use-portals) for emotion.
-
 This is particularly useful if you embed your widget in small component and need to work around stacking context to display part of your component to go over parent boundaries. Just create portal and append its `shadowHost` to end of body.
 
 ## API reference

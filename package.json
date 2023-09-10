@@ -1,6 +1,6 @@
 {
   "name": "inject-react-anywhere",
-  "version": "5.0.11",
+  "version": "5.1.0",
   "description": "Inject react components into DOM of 3rd party sites. Particularly useful in browser extensions",
   "type": "module",
   "module": "dist/esm/index.js",
@@ -67,6 +67,7 @@
   },
   "devDependencies": {
     "@emotion/react": "^11.9.3",
+    "@types/node": "^20.6.0",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "@types/styled-components": "^5.1.25",
