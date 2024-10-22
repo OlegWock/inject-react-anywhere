@@ -137,6 +137,10 @@ export const injectComponent = async <P extends {}>(
         connectPortal: (portal: ShadowPortal) => {
             if (connectedPortals.current.includes(portal)) return;
             connectedPortals.current = [...connectedPortals.current, portal];
+            // TODO: maybe we should delay this to next tick? Because if user connects portal before
+            // appending it into DOM it will break styled-components integration. Or we should add targeted check
+            // that portal is in DOM and log warning otherwise.
+
             // @ts-ignore Unknown prop because we don't expose internal props in types
             renderResults.updateProps({ connectedPortals: connectedPortals.current });
         },

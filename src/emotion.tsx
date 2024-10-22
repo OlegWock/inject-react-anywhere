@@ -25,7 +25,8 @@ function sheetForTag(tag: HTMLStyleElement): CSSStyleSheet {
 type SheetOptions = {
     nonce?: string,
     key: string,
-    containers: Node[],
+    containers?: Node[],
+    container?: Node,
     speedy?: boolean,
     prepend?: boolean,
     insertionPoint?: HTMLElement
@@ -51,6 +52,9 @@ export class StyleSheet {
     tags: Array<HTMLStyleElement[]>
     // Using Node instead of HTMLElement since container may be a ShadowRoot
     containers: Node[]
+    // HACK: emotion sometimes uses this prop to pass it to newly created StyleSheet (when inserting global styles),
+    // so we keep it around
+    container: Node[]
     key: string
     nonce: string | void
     prepend: boolean | void
@@ -61,6 +65,14 @@ export class StyleSheet {
             options.speedy === undefined
                 ? process.env['NODE_ENV'] === 'production'
                 : options.speedy
+        
+        if (!options.containers) {
+            options.containers = []
+        }
+        if (options.container) {
+            options.containers.push(...(Array.isArray(options.container) ? options.container : [options.container]))
+        }
+        if (!options.containers) options.containers = [] 
         this.tags = options.containers.map(c => []);
         this.ctr = 0
         this.nonce = options.nonce
